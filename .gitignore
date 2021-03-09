@@ -57,7 +57,7 @@
 *.log
 *.pth
 *.caffemodel
-exp/
+# exp/
 summary/
 __pycache__/
 # data/
