@@ -62,16 +62,16 @@ summary/
 __pycache__/
 # data/
 back/
-*.png
-*.jpg
+#*.png
+#*.jpg
 *.log
 *.pth
 events*
-config/
+# config/
 dataset/
 *.ninja_deps
 *.ninja_log
 *.ninja
-*.yaml
+# *.yaml
 slurm*
 initmodel
