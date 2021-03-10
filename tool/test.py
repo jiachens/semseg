@@ -119,7 +119,7 @@ def main():
         cal_acc(test_data.data_list, gray_folder, args.classes, names)
 
 
-def net_process(model, image, mean, std=None, flip=True):
+def net_process(model, image, mean, std=None, flip=False):
     input = torch.from_numpy(image.transpose((2, 0, 1))).float()
     if std is None:
         for t, m in zip(input, mean):
