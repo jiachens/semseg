@@ -11,7 +11,6 @@ import torch.nn.functional as F
 import torch.nn.parallel
 import torch.utils.data
 from PIL import Image
-
 from util import dataset, transform, config
 from util.util import AverageMeter, intersectionAndUnion, check_makedirs, colorize
 
@@ -127,7 +126,7 @@ def net_process(model, image, mean, std=None, flip=False):
     p_img = cv2.resize(patch, (300, 300), interpolation=cv2.INTER_LINEAR)
     p_img = np.moveaxis(p_img,-1,0)
     print(image.shape)
-    image[0,:,:300,:300] = p_img
+    image[:300,:300,:] = p_img
     image.save('./test.png')
 
     input = torch.from_numpy(image.transpose((2, 0, 1))).float()
