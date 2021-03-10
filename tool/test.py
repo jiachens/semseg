@@ -120,7 +120,7 @@ def main():
         cal_acc(test_data.data_list, gray_folder, args.classes, names)
 
 
-def net_process(model, image, mean, std=None, flip=False):
+def net_process(model, image, label, mean, std=None, flip=False):
 
     patch = cv2.imread('./cropped_patch.jpg', cv2.IMREAD_COLOR)  # BGR 3 channel ndarray wiht shape H * W * 3
     patch = cv2.cvtColor(patch, cv2.COLOR_BGR2RGB)
@@ -132,7 +132,7 @@ def net_process(model, image, mean, std=None, flip=False):
     cv2.imwrite('./test.png',np.uint8(image))
 
     init_tf_pts_orig = np.array([
-                    [[928, 574],[1205, 574],[1262, 663],[851, 664]], # small
+                    [[928, 574 + 512],[1205, 574 + 512],[1262, 663 + 512],[851, 664 + 512]], # small
                     # [[970, 507],[1161, 507],[1287, 664],[851, 664]], # large
                     [[0, 0], [300 - 1, 0], [300 - 1, 300 - 1], [0, 300 - 1]],
                 ]).astype(np.int)
@@ -145,7 +145,8 @@ def net_process(model, image, mean, std=None, flip=False):
             11,12, # human: person, rider
             13,14,15,16,17,18 # vehicle: car, truck, bus, train, motorcycle, bicycle
         ]
-    target_mask = np.zeros_like(image)
+    target_mask = np.zeros_like(label)
+    h,w,_ = image.shape
     target_mask[:,int(h/2-200):int(h/2+200),int(w/2-200):int(w/2+200)] = 1
     target_mask = (np.any([label.numpy() == id for id in target_labels],axis = 0) & (target_mask == 1)).astype(np.int8) 
     loss_mask = target_mask.copy()
@@ -178,7 +179,7 @@ def net_process(model, image, mean, std=None, flip=False):
     return output
 
 
-def scale_process(model, image, classes, crop_h, crop_w, h, w, mean, std=None, stride_rate=1):
+def scale_process(model, image, label, classes, crop_h, crop_w, h, w, mean, std=None, stride_rate=1):
     ori_h, ori_w, _ = image.shape
     pad_h = max(crop_h - ori_h, 0)
     pad_w = max(crop_w - ori_w, 0)
@@ -186,6 +187,7 @@ def scale_process(model, image, classes, crop_h, crop_w, h, w, mean, std=None, s
     pad_w_half = int(pad_w / 2)
     if pad_h > 0 or pad_w > 0:
         image = cv2.copyMakeBorder(image, pad_h_half, pad_h - pad_h_half, pad_w_half, pad_w - pad_w_half, cv2.BORDER_CONSTANT, value=mean)
+        label = cv2.copyMakeBorder(label, pad_h_half, pad_h - pad_h_half, pad_w_half, pad_w - pad_w_half, cv2.BORDER_CONSTANT, value=mean)
     new_h, new_w, _ = image.shape
     stride_h = int(np.ceil(crop_h*stride_rate))
     stride_w = int(np.ceil(crop_w*stride_rate))
@@ -203,10 +205,11 @@ def scale_process(model, image, classes, crop_h, crop_w, h, w, mean, std=None, s
             e_w = min(s_w + crop_w, new_w)
             s_w = e_w - crop_w
             image_crop = image[s_h:e_h, s_w:e_w].copy()
+            label_crop = label[s_h:e_h, s_w:e_w].copy()
             print(s_h, e_h, s_w, e_w)
             print(image.shape)
             count_crop[s_h:e_h, s_w:e_w] += 1
-            prediction_crop[s_h:e_h, s_w:e_w, :] += net_process(model, image_crop, mean, std)
+            prediction_crop[s_h:e_h, s_w:e_w, :] += net_process(model, image_crop, label_crop, mean, std)
     prediction_crop /= np.expand_dims(count_crop, 2)
     prediction_crop = prediction_crop[pad_h_half:pad_h_half+ori_h, pad_w_half:pad_w_half+ori_w]
     prediction = cv2.resize(prediction_crop, (w, h), interpolation=cv2.INTER_LINEAR)
@@ -236,7 +239,8 @@ def test(test_loader, data_list, model, classes, mean, std, base_size, crop_h, c
             else:
                 new_h = round(long_size/float(w)*h)
             image_scale = cv2.resize(image, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
-            prediction += scale_process(model, image_scale, classes, crop_h, crop_w, h, w, mean, std)
+            label_scale = cv2.resize(label, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
+            prediction += scale_process(model, image_scale,label_scale, classes, crop_h, crop_w, h, w, mean, std)
         prediction /= len(scales)
         prediction = np.argmax(prediction, axis=2)
         batch_time.update(time.time() - end)

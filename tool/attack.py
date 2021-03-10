@@ -3,7 +3,7 @@ Description:
 Autor: Jiachen Sun
 Date: 2021-03-10 13:48:38
 LastEditors: Jiachen Sun
-LastEditTime: 2021-03-10 16:59:38
+LastEditTime: 2021-03-10 17:22:35
 '''
 import numpy as np
 import torch
@@ -28,34 +28,21 @@ def pgd_t(model, image, label, mean, std, target_mask, patch_init, patch_orig, s
 
     target_mask = torch.from_numpy(target_mask).cuda()
 
-    # mean = torch.from_numpy(NORM_MEAN).float().cuda().unsqueeze(0)
-    # mean = mean[..., None, None]
-    # std = torch.from_numpy(NORM_STD).float().cuda().unsqueeze(0)
-    # std = std[..., None, None]
-
-    if std is None:
-        for t, m in zip(input, mean):
-            t.sub_(m)
-    else:
-        for t, m, s in zip(input, mean, std):
-            t.sub_(m).div_(s)
 
     # loss = nn.CrossEntropyLoss()
     loss = nn.NLLLoss2d(ignore_index=255)
 
-    tv_loss = nn.TVLoss()
+    tv_loss = TVLoss()
 
-    h_loss = nn.houdini_loss()
+    h_loss = houdini_loss()
 
     best_adv_img = [torch.zeros_like(images.data), -1e8]
 
     # init transformation matrix
     h, w = images.shape[-2:]  # destination size
     points_src = torch.FloatTensor(init_tf_pts[0]).unsqueeze(0)
-
     # the destination points are the image vertexes
     points_dst = torch.FloatTensor(init_tf_pts[1]).unsqueeze(0)
-
     M: torch.tensor = kornia.get_perspective_transform(points_dst, points_src).cuda()
 
     if patch_mask is None:
@@ -75,7 +62,6 @@ def pgd_t(model, image, label, mean, std, target_mask, patch_init, patch_orig, s
 
         for i in range(iters) :
 
-            start = time.time()
             step_size  = np.max([1e-3, step_size * 0.99])
             images.requires_grad = False
             patches.requires_grad = False
