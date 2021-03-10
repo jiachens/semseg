@@ -163,6 +163,7 @@ def scale_process(model, image, classes, crop_h, crop_w, h, w, mean, std=None, s
     count_crop = np.zeros((new_h, new_w), dtype=float)
     for index_h in range(0, grid_h):
         for index_w in range(0, grid_w):
+            print(grid_h,grid_w)
             s_h = index_h * stride_h
             e_h = min(s_h + crop_h, new_h)
             s_h = e_h - crop_h
@@ -190,6 +191,7 @@ def test(test_loader, data_list, model, classes, mean, std, base_size, crop_h, c
         input = np.squeeze(input.numpy(), axis=0)
         image = np.transpose(input, (1, 2, 0))
         h, w, _ = image.shape
+        
         prediction = np.zeros((h, w, classes), dtype=float)
         for scale in scales:
             long_size = round(scale * base_size)
