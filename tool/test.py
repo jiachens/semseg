@@ -10,6 +10,7 @@ import torch.backends.cudnn as cudnn
 import torch.nn.functional as F
 import torch.nn.parallel
 import torch.utils.data
+from tool import attack
 from PIL import Image
 from util import dataset, transform, config
 from util.util import AverageMeter, intersectionAndUnion, check_makedirs, colorize
@@ -128,21 +129,19 @@ def net_process(model, image, mean, std=None, flip=False):
     print(image.shape)
     image = image.transpose((2, 0, 1))
     image[:,:300,:300] = p_img
-    image.save('./test.png')
+    cv2.imwrite('./test.png',image)
+
+    init_tf_pts_orig = np.array([
+                    [[928, 574],[1205, 574],[1262, 663],[851, 664]], # small
+                    # [[970, 507],[1161, 507],[1287, 664],[851, 664]], # large
+                    [[0, 0], [300 - 1, 0], [300 - 1, 300 - 1], [0, 300 - 1]],
+                ]).astype(np.int)
+    tf_noise_eps = 10
+    tf_pts_noise = np.random.randint(-tf_noise_eps,tf_noise_eps,(4,2))
+    init_tf_pts = init_tf_pts_orig.copy()
+    init_tf_pts[0] += tf_pts_noise
 
     input = torch.from_numpy(image.transpose((2, 0, 1))).float()
-
-    # init_tf_pts_orig = np.array([
-    #                 # [[232,294],[462,294],[476,332],[217,341]],
-    #                 [[928, 574],[1205, 574],[1262, 663],[851, 664]], # small
-    #                 # [[970, 507],[1161, 507],[1287, 664],[851, 664]], # large
-    #                 [[0, 0], [300 - 1, 0], [300 - 1, 300 - 1], [0, 300 - 1]],
-    #                 # [[0, 0], [w - 1, 0], [w - 1, h - 1], [0, h - 1]]
-    #             ]).astype(np.int)
-    # tf_noise_eps = 10
-    # tf_pts_noise = np.random.randint(-tf_noise_eps,tf_noise_eps,(4,2))
-    # init_tf_pts = init_tf_pts_orig.copy()
-    # init_tf_pts[0] += tf_pts_noise
 
     if std is None:
         for t, m in zip(input, mean):
