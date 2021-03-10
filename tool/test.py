@@ -147,7 +147,8 @@ def net_process(model, image, label, mean, std=None, flip=False):
         ]
     target_mask = np.zeros_like(label)
     h,w,_ = image.shape
-    target_mask[:,int(h/2-200):int(h/2+200),int(w/2-200):int(w/2+200)] = 1
+    # image = image.transpose((2, 0, 1))
+    target_mask[int(h/2-200):int(h/2+200),int(w/2-200):int(w/2+200)] = 1
     target_mask = (np.any([label.numpy() == id for id in target_labels],axis = 0) & (target_mask == 1)).astype(np.int8) 
     loss_mask = target_mask.copy()
 
