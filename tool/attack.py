@@ -3,7 +3,7 @@ Description:
 Autor: Jiachen Sun
 Date: 2021-03-10 13:48:38
 LastEditors: Jiachen Sun
-LastEditTime: 2021-03-10 18:36:58
+LastEditTime: 2021-03-10 18:37:55
 '''
 import numpy as np
 import torch
@@ -47,9 +47,9 @@ def pgd_t(model, image, label, mean, std, target_mask, patch_init, patch_orig, s
 
     target_mask = torch.from_numpy(target_mask).cuda()
 
-    mean = torch.from_numpy(NORM_MEAN).float().cuda().unsqueeze(0)
+    mean = torch.from_numpy(mean).float().cuda().unsqueeze(0)
     mean = mean[..., None, None]
-    std = torch.from_numpy(NORM_STD).float().cuda().unsqueeze(0)
+    std = torch.from_numpy(std).float().cuda().unsqueeze(0)
     std = std[..., None, None]
 
     # loss = nn.CrossEntropyLoss()
