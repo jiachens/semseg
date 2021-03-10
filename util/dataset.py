@@ -3,7 +3,7 @@ Description:
 Autor: Jiachen Sun
 Date: 2021-03-06 15:13:57
 LastEditors: Jiachen Sun
-LastEditTime: 2021-03-09 20:49:53
+LastEditTime: 2021-03-09 21:13:48
 '''
 import os
 import os.path
@@ -41,6 +41,7 @@ def make_dataset(split='train', data_root=None, data_list=None):
             if len(line_split) != 2:
                 raise (RuntimeError("Image list file read line error : " + line + "\n"))
             image_name = os.path.join(data_root, line_split[0])
+            label_line = line_split[1][:-17] + 'trainIds.png'
             label_name = os.path.join(data_root, line_split[1])
             print(image_name,label_name)
         '''
