@@ -2,7 +2,7 @@ import os
 import time
 import logging
 import argparse
-
+import pandas as pd
 import cv2
 import numpy as np
 import torch
@@ -247,6 +247,12 @@ def cal_acc(data_list, pred_folder, classes, names):
     mIoU = np.mean(iou_class)
     mAcc = np.mean(accuracy_class)
     allAcc = sum(intersection_meter.sum) / (sum(target_meter.sum) + 1e-10)
+
+    df_iou = pd.DataFrame([iou_class],columns=names)
+    df_acc = pd.DataFrame([accuracy_class],columns=names)
+
+    print(df_iou.to_latex(index=False))
+    print(df_acc.to_latex(index=False))
 
     logger.info('Eval result: mIoU/mAcc/allAcc {:.4f}/{:.4f}/{:.4f}.'.format(mIoU, mAcc, allAcc))
     for i in range(classes):
