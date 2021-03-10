@@ -1,3 +1,10 @@
+'''
+Description: 
+Autor: Jiachen Sun
+Date: 2021-03-06 15:13:57
+LastEditors: Jiachen Sun
+LastEditTime: 2021-03-09 20:49:53
+'''
 import os
 import os.path
 import cv2
@@ -35,6 +42,7 @@ def make_dataset(split='train', data_root=None, data_list=None):
                 raise (RuntimeError("Image list file read line error : " + line + "\n"))
             image_name = os.path.join(data_root, line_split[0])
             label_name = os.path.join(data_root, line_split[1])
+            print(image_name,label_name)
         '''
         following check costs some time
         if is_image_file(image_name) and is_image_file(label_name) and os.path.isfile(image_name) and os.path.isfile(label_name):
