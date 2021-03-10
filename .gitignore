@@ -58,6 +58,7 @@
 *.pth
 *.caffemodel
 # exp/
+exp/cityscapes/psanet50/result
 summary/
 __pycache__/
 # data/
