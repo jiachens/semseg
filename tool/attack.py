@@ -3,7 +3,7 @@ Description:
 Autor: Jiachen Sun
 Date: 2021-03-10 13:48:38
 LastEditors: Jiachen Sun
-LastEditTime: 2021-03-10 17:57:11
+LastEditTime: 2021-03-10 18:36:58
 '''
 import numpy as np
 import torch
@@ -37,6 +37,7 @@ class TVLoss(nn.Module):
 def pgd_t(model, image, label, mean, std, target_mask, patch_init, patch_orig, step_size = 0.1, eps=10/255., iters=10, alpha = 1e-1, beta = 2., restarts=1, target_label=None, rap=False, init_tf_pts=None, patch_mask = None):
     
     images = image.cuda()
+
     t_labels = torch.ones_like(label)
     labels = t_labels.cuda(async=True)
     patches = patch_init.cuda()
@@ -46,6 +47,10 @@ def pgd_t(model, image, label, mean, std, target_mask, patch_init, patch_orig, s
 
     target_mask = torch.from_numpy(target_mask).cuda()
 
+    mean = torch.from_numpy(NORM_MEAN).float().cuda().unsqueeze(0)
+    mean = mean[..., None, None]
+    std = torch.from_numpy(NORM_STD).float().cuda().unsqueeze(0)
+    std = std[..., None, None]
 
     # loss = nn.CrossEntropyLoss()
     loss = nn.NLLLoss2d(ignore_index=255)
@@ -86,7 +91,7 @@ def pgd_t(model, image, label, mean, std, target_mask, patch_init, patch_orig, s
 
             t_patch: torch.tensor = kornia.warp_perspective((patches+delta).float(), M, dsize=(h, w))
 
-            adv_images = (torch.clamp(t_patch*t_patch_mask_var+(1-t_patch_mask_var)*(images*std+mean),min=0, max=1)- mean)/std
+            adv_images = (torch.clamp(t_patch*t_patch_mask_var+(1-t_patch_mask_var)*(images*std+mean),min=0, max=1) - mean) / std
 
             outputs = model(adv_images)[0]
 
