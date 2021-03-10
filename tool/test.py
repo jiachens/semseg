@@ -146,7 +146,7 @@ def net_process(model, image, mean, std=None, flip=True):
     return output
 
 
-def scale_process(model, image, classes, crop_h, crop_w, h, w, mean, std=None, stride_rate=2/3):
+def scale_process(model, image, classes, crop_h, crop_w, h, w, mean, std=None, stride_rate=1):
     ori_h, ori_w, _ = image.shape
     pad_h = max(crop_h - ori_h, 0)
     pad_w = max(crop_w - ori_w, 0)
