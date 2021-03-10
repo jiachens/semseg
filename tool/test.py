@@ -126,10 +126,16 @@ def net_process(model, image, label, mean, std=None, flip=False):
     patch = cv2.cvtColor(patch, cv2.COLOR_BGR2RGB)
     p_img = cv2.resize(patch, (300, 300), interpolation=cv2.INTER_LINEAR)
     # p_img = np.moveaxis(p_img,-1,0)
-    print(image.shape)
+    # print(image.shape)
     # image = image.transpose((2, 0, 1))
-    image[:300,:300,:] = p_img
-    cv2.imwrite('./test.png',np.uint8(image))
+    # image[:300,:300,:] = p_img
+    # cv2.imwrite('./test.png',np.uint8(image))
+    patch_img = np.zeros_like(image.transpose((2, 0, 1)))
+    p_img = p_img/255.
+    p_img = np.moveaxis(p_img,-1,0)
+    patch_img[:,:300,:300] = p_img
+    patch_orig = torch.from_numpy(patch_img).cuda()
+    # adv_patch = torch.from_numpy(patch_img).cuda()
 
     init_tf_pts_orig = np.array([
                     [[928, 574 + 512],[1205, 574 + 512],[1262, 663 + 512],[851, 664 + 512]], # small
@@ -153,7 +159,14 @@ def net_process(model, image, label, mean, std=None, flip=False):
     print(target_mask[int(h/2-200):int(h/2+200),int(w/2-200):int(w/2+200)])
     loss_mask = target_mask.copy()
 
+    adv_image = attack.pgd_t(model,image,label,mean,std,target_mask,patch_orig, patch_orig, 
+                          init_tf_pts=init_tf_pts, 
+                          step_size = 0.1, eps=100./255, iters=10, 
+                          alpha=1, restarts=1, rap=True,target_label = 2)[0]
+
     input = torch.from_numpy(image.transpose((2, 0, 1))).float()
+
+
 
     if std is None:
         for t, m in zip(input, mean):
