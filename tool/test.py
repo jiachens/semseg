@@ -125,11 +125,11 @@ def net_process(model, image, mean, std=None, flip=False):
     patch = cv2.imread('./cropped_patch.jpg', cv2.IMREAD_COLOR)  # BGR 3 channel ndarray wiht shape H * W * 3
     patch = cv2.cvtColor(patch, cv2.COLOR_BGR2RGB)
     p_img = cv2.resize(patch, (300, 300), interpolation=cv2.INTER_LINEAR)
-    p_img = np.moveaxis(p_img,-1,0)
+    # p_img = np.moveaxis(p_img,-1,0)
     print(image.shape)
-    image = image.transpose((2, 0, 1))
-    image[:,:300,:300] = p_img
-    cv2.imwrite('./test.png',image)
+    # image = image.transpose((2, 0, 1))
+    image[:300,:300,:] = p_img
+    cv2.imwrite('./test.png',np.uint8(image))
 
     init_tf_pts_orig = np.array([
                     [[928, 574],[1205, 574],[1262, 663],[851, 664]], # small
@@ -140,6 +140,15 @@ def net_process(model, image, mean, std=None, flip=False):
     tf_pts_noise = np.random.randint(-tf_noise_eps,tf_noise_eps,(4,2))
     init_tf_pts = init_tf_pts_orig.copy()
     init_tf_pts[0] += tf_pts_noise
+    target_labels = [
+            5,6,7, # object: pole, traffic light, traffic sign
+            11,12, # human: person, rider
+            13,14,15,16,17,18 # vehicle: car, truck, bus, train, motorcycle, bicycle
+        ]
+    target_mask = np.zeros_like(image)
+    target_mask[:,int(h/2-200):int(h/2+200),int(w/2-200):int(w/2+200)] = 1
+    target_mask = (np.any([label.numpy() == id for id in target_labels],axis = 0) & (target_mask == 1)).astype(np.int8) 
+    loss_mask = target_mask.copy()
 
     input = torch.from_numpy(image.transpose((2, 0, 1))).float()
 
@@ -210,7 +219,7 @@ def test(test_loader, data_list, model, classes, mean, std, base_size, crop_h, c
     batch_time = AverageMeter()
     model.eval()
     end = time.time()
-    for i, (input, _) in enumerate(test_loader):
+    for i, (input, label) in enumerate(test_loader):
         print(input.shape)
         data_time.update(time.time() - end)
         input = np.squeeze(input.numpy(), axis=0)
