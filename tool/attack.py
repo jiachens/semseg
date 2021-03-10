@@ -3,7 +3,7 @@ Description:
 Autor: Jiachen Sun
 Date: 2021-03-10 13:48:38
 LastEditors: Jiachen Sun
-LastEditTime: 2021-03-10 18:37:55
+LastEditTime: 2021-03-10 18:38:41
 '''
 import numpy as np
 import torch
@@ -91,7 +91,7 @@ def pgd_t(model, image, label, mean, std, target_mask, patch_init, patch_orig, s
 
             t_patch: torch.tensor = kornia.warp_perspective((patches+delta).float(), M, dsize=(h, w))
 
-            adv_images = (torch.clamp(t_patch*t_patch_mask_var+(1-t_patch_mask_var)*(images*std+mean),min=0, max=1) - mean) / std
+            adv_images = (torch.clamp(t_patch*t_patch_mask_var+(1-t_patch_mask_var)*(images),min=0, max=1) - mean) / std
 
             outputs = model(adv_images)[0]
 
