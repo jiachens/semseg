@@ -185,6 +185,7 @@ def test(test_loader, data_list, model, classes, mean, std, base_size, crop_h, c
     model.eval()
     end = time.time()
     for i, (input, _) in enumerate(test_loader):
+        print(input.shape)
         data_time.update(time.time() - end)
         input = np.squeeze(input.numpy(), axis=0)
         image = np.transpose(input, (1, 2, 0))
