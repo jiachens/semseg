@@ -163,7 +163,7 @@ def scale_process(model, image, classes, crop_h, crop_w, h, w, mean, std=None, s
     count_crop = np.zeros((new_h, new_w), dtype=float)
     for index_h in range(0, grid_h):
         for index_w in range(0, grid_w):
-            print(grid_h,grid_w)
+            # print(grid_h,grid_w)
             s_h = index_h * stride_h
             e_h = min(s_h + crop_h, new_h)
             s_h = e_h - crop_h
@@ -171,6 +171,8 @@ def scale_process(model, image, classes, crop_h, crop_w, h, w, mean, std=None, s
             e_w = min(s_w + crop_w, new_w)
             s_w = e_w - crop_w
             image_crop = image[s_h:e_h, s_w:e_w].copy()
+            print(s_h, e_h, s_w, e_w)
+            print(image.shape)
             count_crop[s_h:e_h, s_w:e_w] += 1
             prediction_crop[s_h:e_h, s_w:e_w, :] += net_process(model, image_crop, mean, std)
     prediction_crop /= np.expand_dims(count_crop, 2)
