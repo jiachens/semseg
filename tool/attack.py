@@ -3,7 +3,7 @@ Description:
 Autor: Jiachen Sun
 Date: 2021-03-10 13:48:38
 LastEditors: Jiachen Sun
-LastEditTime: 2021-03-10 15:25:55
+LastEditTime: 2021-03-10 16:59:38
 '''
 import numpy as np
 import torch
@@ -24,9 +24,6 @@ def pgd_t(model, image, label, mean, std, target_mask, patch_init, patch_orig, s
     patches = patch_init.cuda()
 
     u_labels = label.cuda(async=True)
-
-    # images = torch.autograd.Variable(images)
-    # labels = torch.autograd.Variable(labels)
     u_labels = torch.autograd.Variable(u_labels)
 
     target_mask = torch.from_numpy(target_mask).cuda()
