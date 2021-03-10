@@ -226,7 +226,9 @@ def test(test_loader, data_list, model, classes, mean, std, base_size, crop_h, c
         print(input.shape)
         data_time.update(time.time() - end)
         input = np.squeeze(input.numpy(), axis=0)
+        label = np.squeeze(label.numpy(), axis=0)
         image = np.transpose(input, (1, 2, 0))
+        label = np.transpose(label, (1, 2, 0))
         h, w, _ = image.shape
         
         prediction = np.zeros((h, w, classes), dtype=float)
