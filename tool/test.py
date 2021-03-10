@@ -159,12 +159,13 @@ def net_process(model, image, label, mean, std=None, flip=False):
     print(target_mask[int(h/2-200):int(h/2+200),int(w/2-200):int(w/2+200)])
     loss_mask = target_mask.copy()
 
+    input = torch.from_numpy(image.transpose((2, 0, 1))).float()
+    
     adv_image = attack.pgd_t(model,image,label,mean,std,target_mask,patch_orig, patch_orig, 
                           init_tf_pts=init_tf_pts, 
                           step_size = 0.1, eps=100./255, iters=10, 
                           alpha=1, restarts=1, rap=True,target_label = 2)[0]
     print(adv_image.shape)
-    input = torch.from_numpy(image.transpose((2, 0, 1))).float()
 
 
 
