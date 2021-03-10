@@ -3,7 +3,7 @@ Description:
 Autor: Jiachen Sun
 Date: 2021-03-10 13:48:38
 LastEditors: Jiachen Sun
-LastEditTime: 2021-03-10 14:08:25
+LastEditTime: 2021-03-10 15:25:55
 '''
 import numpy as np
 import torch
@@ -16,7 +16,7 @@ from torch.nn import functional as F
 import cv2
 import kornia
 
-def pgd_t(model, image, label, target_mask, patch_init, patch_orig, step_size = 0.1, eps=10/255., iters=10, alpha = 1e-1, beta = 2., restarts=1, target_label=None, rap=False, init_tf_pts=None, patch_mask = None):
+def pgd_t(model, image, label, mean, std, target_mask, patch_init, patch_orig, step_size = 0.1, eps=10/255., iters=10, alpha = 1e-1, beta = 2., restarts=1, target_label=None, rap=False, init_tf_pts=None, patch_mask = None):
     
     images = image.cuda()
     t_labels = torch.ones_like(label)
@@ -31,17 +31,24 @@ def pgd_t(model, image, label, target_mask, patch_init, patch_orig, step_size = 
 
     target_mask = torch.from_numpy(target_mask).cuda()
 
-    mean = torch.from_numpy(NORM_MEAN).float().cuda().unsqueeze(0)
-    mean = mean[..., None, None]
-    std = torch.from_numpy(NORM_STD).float().cuda().unsqueeze(0)
-    std = std[..., None, None]
+    # mean = torch.from_numpy(NORM_MEAN).float().cuda().unsqueeze(0)
+    # mean = mean[..., None, None]
+    # std = torch.from_numpy(NORM_STD).float().cuda().unsqueeze(0)
+    # std = std[..., None, None]
+
+    if std is None:
+        for t, m in zip(input, mean):
+            t.sub_(m)
+    else:
+        for t, m, s in zip(input, mean, std):
+            t.sub_(m).div_(s)
 
     # loss = nn.CrossEntropyLoss()
     loss = nn.NLLLoss2d(ignore_index=255)
 
-    tv_loss = TVLoss()
+    tv_loss = nn.TVLoss()
 
-    h_loss = houdini_loss()
+    h_loss = nn.houdini_loss()
 
     best_adv_img = [torch.zeros_like(images.data), -1e8]
 

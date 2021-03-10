@@ -10,6 +10,7 @@ import torch.backends.cudnn as cudnn
 import torch.nn.functional as F
 import torch.nn.parallel
 import torch.utils.data
+from PIL import Image
 
 from util import dataset, transform, config
 from util.util import AverageMeter, intersectionAndUnion, check_makedirs, colorize
@@ -120,13 +121,35 @@ def main():
 
 
 def net_process(model, image, mean, std=None, flip=False):
+
+    patch = cv2.imread('./cropped_patch.jpg', cv2.IMREAD_COLOR)  # BGR 3 channel ndarray wiht shape H * W * 3
+    patch = cv2.cvtColor(patch, cv2.COLOR_BGR2RGB)
+    p_img = cv2.resize(patch, (300, 300), interpolation=cv2.INTER_LINEAR)
+    p_img = np.moveaxis(p_img,-1,0)
+    image[0,:,:300,:300] = p_img
+    image.save('./test.png')
+
     input = torch.from_numpy(image.transpose((2, 0, 1))).float()
+
+    init_tf_pts_orig = np.array([
+                    # [[232,294],[462,294],[476,332],[217,341]],
+                    [[928, 574],[1205, 574],[1262, 663],[851, 664]], # small
+                    # [[970, 507],[1161, 507],[1287, 664],[851, 664]], # large
+                    [[0, 0], [300 - 1, 0], [300 - 1, 300 - 1], [0, 300 - 1]],
+                    # [[0, 0], [w - 1, 0], [w - 1, h - 1], [0, h - 1]]
+                ]).astype(np.int)
+    tf_noise_eps = 10
+    tf_pts_noise = np.random.randint(-tf_noise_eps,tf_noise_eps,(4,2))
+    init_tf_pts = init_tf_pts_orig.copy()
+    init_tf_pts[0] += tf_pts_noise
+
     if std is None:
         for t, m in zip(input, mean):
             t.sub_(m)
     else:
         for t, m, s in zip(input, mean, std):
             t.sub_(m).div_(s)
+    
     input = input.unsqueeze(0).cuda()
     if flip:
         input = torch.cat([input, input.flip(3)], 0)
