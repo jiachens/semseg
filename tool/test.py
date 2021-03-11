@@ -258,6 +258,7 @@ def test(test_loader, data_list, model, classes, mean, std, base_size, crop_h, c
                 new_w = round(long_size/float(h)*w)
             else:
                 new_h = round(long_size/float(w)*h)
+            print(new_w, new_h)
             image_scale = cv2.resize(image, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
             label_scale = cv2.resize(label, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
             prediction += scale_process(model, image_scale,label_scale, classes, crop_h, crop_w, h, w, mean, std)
