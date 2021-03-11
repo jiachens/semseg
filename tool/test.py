@@ -196,7 +196,7 @@ def net_process(model, image, label, mean, std=None, flip=False):
     return output
 
 
-def scale_process(model, image, label, classes, crop_h, crop_w, h, w, mean, std=None, stride_rate=0.5):
+def scale_process(model, image, label, classes, crop_h, crop_w, h, w, mean, std=None, stride_rate=1):
     ori_h, ori_w, _ = image.shape
     pad_h = max(crop_h - ori_h, 0)
     pad_w = max(crop_w - ori_w, 0)
@@ -229,7 +229,7 @@ def scale_process(model, image, label, classes, crop_h, crop_w, h, w, mean, std=
             # print(image.shape)
             count_crop[s_h:e_h, s_w:e_w] += 1
             prediction_crop[s_h:e_h, s_w:e_w, :] += net_process(model, image_crop, label_crop, mean, std)
-    # prediction_crop /= np.expand_dims(count_crop, 2)
+    prediction_crop /= np.expand_dims(count_crop, 2)
     prediction_crop = prediction_crop[pad_h_half:pad_h_half+ori_h, pad_w_half:pad_w_half+ori_w]
     prediction = cv2.resize(prediction_crop, (w, h), interpolation=cv2.INTER_LINEAR)
     return prediction

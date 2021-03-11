@@ -52,7 +52,7 @@ TEST:
   test_list: fine_val.txt
   split: val  # split in [train, val and test]
   base_size: 2048  # based size for scaling
-  test_h: 1033
+  test_h: 1025
   test_w: 2049
   scales: [1.0]  # evaluation scales, ms as [0.5, 0.75, 1.0, 1.25, 1.5, 1.75]
   has_prediction: False  # has prediction already or not
