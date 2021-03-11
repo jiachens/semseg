@@ -3,7 +3,7 @@ Description:
 Autor: Jiachen Sun
 Date: 2021-03-10 13:48:38
 LastEditors: Jiachen Sun
-LastEditTime: 2021-03-10 22:56:24
+LastEditTime: 2021-03-10 22:57:08
 '''
 import numpy as np
 import torch
@@ -66,15 +66,11 @@ def pgd_t(model, image, label, mean, std, target_mask, patch_init, patch_orig, s
     points_dst = torch.FloatTensor(init_tf_pts[1]).unsqueeze(0)
     M: torch.tensor = kornia.get_perspective_transform(points_dst, points_src).cuda()
 
-    patch_mask = np.zeros_like(patch_img)
-    patch_mask[0,:,:300,:300] = 1
-    patch_mask = torch.from_numpy(patch_mask).cuda()
-
     if patch_mask is None:
         patch_mask_var = torch.ones_like(patches)
     else:
         patch_mask_var = patch_mask
-        
+
     t_patch_mask_var = kornia.warp_perspective(patch_mask_var.float(), M, dsize=(h, w))
 
     # print(t_patch_mask_var)

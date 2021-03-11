@@ -130,6 +130,9 @@ def net_process(model, image, label, mean, std=None, flip=False):
     patch_img[:,:,:300,:300] = p_img
     patch_orig = torch.from_numpy(patch_img).cuda()
     # adv_patch = torch.from_numpy(patch_img).cuda()
+    patch_mask = np.zeros_like(patch_img)
+    patch_mask[0,:,:300,:300] = 1
+    patch_mask = torch.from_numpy(patch_mask).cuda()
 
     init_tf_pts_orig = np.array([
                     [[928, 574],[1205, 574],[1262, 663],[851, 664]], # small
@@ -159,7 +162,7 @@ def net_process(model, image, label, mean, std=None, flip=False):
     adv_image = attack.pgd_t(model,input,label,mean,std,loss_mask,patch_orig, patch_orig, 
                           init_tf_pts=init_tf_pts, 
                           step_size = 0.1, eps=100./255, iters=10, 
-                          alpha=1, restarts=1, rap=True,target_label = 2)[0]
+                          alpha=1, restarts=1, rap=True,target_label = 2,patch_mask=patch_mask)[0]
     print(adv_image.shape)
 
 
