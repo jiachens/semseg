@@ -217,19 +217,18 @@ def scale_process(model, image, label, classes, crop_h, crop_w, h, w, mean, std=
     for index_h in range(0, grid_h):
         for index_w in range(0, grid_w):
             print(index_h,index_w)
-            if index_h == 1:
-                s_h = index_h * stride_h
-                e_h = min(s_h + crop_h, new_h)
-                s_h = e_h - crop_h
-                s_w = index_w * stride_w
-                e_w = min(s_w + crop_w, new_w)
-                s_w = e_w - crop_w
-                image_crop = image[s_h:e_h, s_w:e_w].copy()
-                label_crop = label[s_h:e_h, s_w:e_w].copy()
-                # print(s_h, e_h, s_w, e_w)
-                # print(image.shape)
-                count_crop[s_h:e_h, s_w:e_w] += 1
-                prediction_crop[s_h:e_h, s_w:e_w, :] += net_process(model, image_crop, label_crop, mean, std)
+            s_h = index_h * stride_h
+            e_h = min(s_h + crop_h, new_h)
+            s_h = e_h - crop_h
+            s_w = index_w * stride_w
+            e_w = min(s_w + crop_w, new_w)
+            s_w = e_w - crop_w
+            image_crop = image[s_h:e_h, s_w:e_w].copy()
+            label_crop = label[s_h:e_h, s_w:e_w].copy()
+            # print(s_h, e_h, s_w, e_w)
+            # print(image.shape)
+            count_crop[s_h:e_h, s_w:e_w] += 1
+            prediction_crop[s_h:e_h, s_w:e_w, :] += net_process(model, image_crop, label_crop, mean, std)
     # prediction_crop /= np.expand_dims(count_crop, 2)
     prediction_crop = prediction_crop[pad_h_half:pad_h_half+ori_h, pad_w_half:pad_w_half+ori_w]
     prediction = cv2.resize(prediction_crop, (w, h), interpolation=cv2.INTER_LINEAR)
