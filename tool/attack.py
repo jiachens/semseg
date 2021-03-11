@@ -3,7 +3,7 @@ Description:
 Autor: Jiachen Sun
 Date: 2021-03-10 13:48:38
 LastEditors: Jiachen Sun
-LastEditTime: 2021-03-10 21:46:33
+LastEditTime: 2021-03-10 21:48:21
 '''
 import numpy as np
 import torch
@@ -74,7 +74,7 @@ def pgd_t(model, image, label, mean, std, target_mask, patch_init, patch_orig, s
 
     # print(t_patch_mask_var)
     #print(t_patch_mask_var.clone().cpu().data.numpy().shape)
-    cv2.imwrite('mask.png', np.int8(t_patch_mask_var.clone().squeeze().cpu().data.numpy().transpose((1,2,0))))
+    cv2.imwrite('mask.png', np.int8(t_patch_mask_var.clone().squeeze().cpu().data.numpy().transpose((1,2,0))*255))
 
     ori_patches = patch_orig.data
 
