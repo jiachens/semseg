@@ -3,7 +3,7 @@ Description:
 Autor: Jiachen Sun
 Date: 2021-03-10 13:48:38
 LastEditors: Jiachen Sun
-LastEditTime: 2021-03-10 23:15:51
+LastEditTime: 2021-03-11 14:49:36
 '''
 import numpy as np
 import torch
@@ -74,8 +74,8 @@ def pgd_t(model, image, label, mean, std, target_mask, patch_init, patch_orig, s
     t_patch_mask_var = kornia.warp_perspective(patch_mask_var.float(), M, dsize=(h, w))
 
     #print(t_patch_mask_var.clone().cpu().data.numpy().shape)
-    cv2.imwrite('mask.png', np.uint8(t_patch_mask_var.clone().squeeze().cpu().data.numpy().transpose((1,2,0))*255))
-    cv2.imwrite('mask1.png', np.uint8(patch_mask_var.clone().squeeze().cpu().data.numpy().transpose((1,2,0))*255))
+    # cv2.imwrite('mask.png', np.uint8(t_patch_mask_var.clone().squeeze().cpu().data.numpy().transpose((1,2,0))*255))
+    # cv2.imwrite('mask1.png', np.uint8(patch_mask_var.clone().squeeze().cpu().data.numpy().transpose((1,2,0))*255))
 
     ori_patches = patch_orig.data
 
@@ -131,8 +131,9 @@ def pgd_t(model, image, label, mean, std, target_mask, patch_init, patch_orig, s
 
     t_patch: torch.tensor = kornia.warp_perspective((ori_patches+best_adv_patches[0]).float(), M, dsize=(h, w))
 
-    cv2.imwrite('./test.png',np.uint8(torch.clamp(t_patch*t_patch_mask_var+(1-t_patch_mask_var)*(images),min=0, max=255).clone().squeeze(0).cpu().numpy().transpose((1,2,0))))
+    # cv2.imwrite('./test.png',np.uint8(torch.clamp(t_patch*t_patch_mask_var+(1-t_patch_mask_var)*(images),min=0, max=255).clone().squeeze(0).cpu().numpy().transpose((1,2,0))))
 
+    adv_images_orig = torch.clamp(t_patch*t_patch_mask_var+(1-t_patch_mask_var)*(images),min=0, max=255)
     adv_images = (torch.clamp(t_patch*t_patch_mask_var+(1-t_patch_mask_var)*(images),min=0, max=255)- mean)/std
 
-    return adv_images, best_adv_patches[0]+ori_patches, t_patch_mask_var.cpu().data.numpy()
+    return adv_images, adv_images_orig, best_adv_patches[0]+ori_patches, t_patch_mask_var.cpu().data.numpy()

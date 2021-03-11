@@ -120,7 +120,7 @@ def main():
         cal_acc(test_data.data_list, gray_folder, args.classes, names)
 
 
-def net_process(model, image, label, mean, std=None, flip=False):
+def net_process(model, image, label, mean, std=None, flip=False, image_name=None):
 
     patch = cv2.imread('./cropped_patch.jpg', cv2.IMREAD_COLOR)  # BGR 3 channel ndarray wiht shape H * W * 3
     patch = cv2.cvtColor(patch, cv2.COLOR_BGR2RGB)
@@ -159,11 +159,14 @@ def net_process(model, image, label, mean, std=None, flip=False):
     input = torch.from_numpy(image.transpose((2, 0, 1))).float()
     label = torch.from_numpy(label).unsqueeze(0)
 
-    adv_image = attack.pgd_t(model,input,label,mean,std,loss_mask,patch_orig, patch_orig, 
+    adv_image, adv_image_orig = attack.pgd_t(model,input,label,mean,std,loss_mask,patch_orig, patch_orig, 
                           init_tf_pts=init_tf_pts, 
-                          step_size = 0.1, eps=100./255, iters=10, 
-                          alpha=1, restarts=1, rap=True,target_label = 2,patch_mask=patch_mask)[0]
-    print(adv_image.shape)
+                          step_size = 1, eps=100, iters=100, 
+                          alpha=1, restarts=1, rap=True,target_label = 2,patch_mask=patch_mask)[0,1]
+    
+    input = adv_image
+
+    cv2.imwrite('./' + image_name + '_adv.png',np.uint8(adv_image_orig.clone().squeeze(0).cpu().numpy().transpose((1,2,0))))
 
 
     if std is None:
@@ -192,7 +195,7 @@ def net_process(model, image, label, mean, std=None, flip=False):
     return output
 
 
-def scale_process(model, image, label, classes, crop_h, crop_w, h, w, mean, std=None, stride_rate=1):
+def scale_process(model, image, label, classes, crop_h, crop_w, h, w, mean, std=None, stride_rate=1, image_name=None):
     ori_h, ori_w, _ = image.shape
     pad_h = max(crop_h - ori_h, 0)
     pad_w = max(crop_w - ori_w, 0)
@@ -224,7 +227,7 @@ def scale_process(model, image, label, classes, crop_h, crop_w, h, w, mean, std=
             # print(s_h, e_h, s_w, e_w)
             # print(image.shape)
             count_crop[s_h:e_h, s_w:e_w] += 1
-            prediction_crop[s_h:e_h, s_w:e_w, :] += net_process(model, image_crop, label_crop, mean, std)
+            prediction_crop[s_h:e_h, s_w:e_w, :] += net_process(model, image_crop, label_crop, mean, std, image_name)
     prediction_crop /= np.expand_dims(count_crop, 2)
     prediction_crop = prediction_crop[pad_h_half:pad_h_half+ori_h, pad_w_half:pad_w_half+ori_w]
     prediction = cv2.resize(prediction_crop, (w, h), interpolation=cv2.INTER_LINEAR)
@@ -246,6 +249,9 @@ def test(test_loader, data_list, model, classes, mean, std, base_size, crop_h, c
         # print(label.shape)
         # label = np.transpose(label, (1, 2, 0))
         h, w, _ = image.shape
+
+        image_path, _ = data_list[i]
+        image_name = image_path.split('/')[-1].split('.')[0]
         
         prediction = np.zeros((h, w, classes), dtype=float)
         for scale in scales:
@@ -258,7 +264,7 @@ def test(test_loader, data_list, model, classes, mean, std, base_size, crop_h, c
                 new_h = round(long_size/float(w)*h)
             image_scale = cv2.resize(image, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
             label_scale = cv2.resize(label, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
-            prediction += scale_process(model, image_scale,label_scale, classes, crop_h, crop_w, h, w, mean, std)
+            prediction += scale_process(model, image_scale,label_scale, classes, crop_h, crop_w, h, w, mean, std, image_name)
         prediction /= len(scales)
         prediction = np.argmax(prediction, axis=2)
         batch_time.update(time.time() - end)
@@ -273,8 +279,6 @@ def test(test_loader, data_list, model, classes, mean, std, base_size, crop_h, c
         check_makedirs(color_folder)
         gray = np.uint8(prediction)
         color = colorize(gray, colors)
-        image_path, _ = data_list[i]
-        image_name = image_path.split('/')[-1].split('.')[0]
         gray_path = os.path.join(gray_folder, image_name + '.png')
         color_path = os.path.join(color_folder, image_name + '.png')
         cv2.imwrite(gray_path, gray)
