@@ -227,7 +227,7 @@ def scale_process(model, image, label, classes, crop_h, crop_w, h, w, mean, std=
             # print(s_h, e_h, s_w, e_w)
             # print(image.shape)
             count_crop[s_h:e_h, s_w:e_w] += 1
-            prediction_crop[s_h:e_h, s_w:e_w, :] += net_process(model, image_crop, label_crop, mean, std, image_name)
+            prediction_crop[s_h:e_h, s_w:e_w, :] += net_process(model, image_crop, label_crop, mean, std, image_name=image_name)
     prediction_crop /= np.expand_dims(count_crop, 2)
     prediction_crop = prediction_crop[pad_h_half:pad_h_half+ori_h, pad_w_half:pad_w_half+ori_w]
     prediction = cv2.resize(prediction_crop, (w, h), interpolation=cv2.INTER_LINEAR)
@@ -264,7 +264,7 @@ def test(test_loader, data_list, model, classes, mean, std, base_size, crop_h, c
                 new_h = round(long_size/float(w)*h)
             image_scale = cv2.resize(image, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
             label_scale = cv2.resize(label, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
-            prediction += scale_process(model, image_scale,label_scale, classes, crop_h, crop_w, h, w, mean, std, image_name)
+            prediction += scale_process(model, image_scale,label_scale, classes, crop_h, crop_w, h, w, mean, std, image_name=image_name)
         prediction /= len(scales)
         prediction = np.argmax(prediction, axis=2)
         batch_time.update(time.time() - end)
