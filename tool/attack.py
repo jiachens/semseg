@@ -3,7 +3,7 @@ Description:
 Autor: Jiachen Sun
 Date: 2021-03-10 13:48:38
 LastEditors: Jiachen Sun
-LastEditTime: 2021-03-10 20:54:04
+LastEditTime: 2021-03-10 21:07:05
 '''
 import numpy as np
 import torch
@@ -34,7 +34,7 @@ class TVLoss(nn.Module):
     def _tensor_size(self,t):
         return t.size()[1]*t.size()[2]*t.size()[3]
 
-def pgd_t(model, image, label, mean, std, target_mask, patch_init, patch_orig, step_size = 0.1, eps=10/255., iters=10, alpha = 1e-1, beta = 2., restarts=1, target_label=None, rap=False, init_tf_pts=None, patch_mask = None):
+def pgd_t(model, image, label, mean, std, target_mask, patch_init, patch_orig, step_size = 1, eps=10, iters=10, alpha = 1, beta = 2., restarts=1, target_label=None, rap=False, init_tf_pts=None, patch_mask = None):
     
     images = image.cuda()
 
@@ -70,7 +70,7 @@ def pgd_t(model, image, label, mean, std, target_mask, patch_init, patch_orig, s
         patch_mask_var = torch.ones_like(patches)
     else:
         patch_mask_var = patch_mask
-    t_patch_mask_var = kornia.warp_perspective(patch_mask_var.float(), M, dsize=(h, w))
+    t_patch_mask_var = kornia.warp_perspective(patch_mask_var.float(), M, dsize=(300, 300))
 
     ori_patches = patch_orig.data
 
@@ -89,7 +89,7 @@ def pgd_t(model, image, label, mean, std, target_mask, patch_init, patch_orig, s
             delta.requires_grad = True
             patch_mask_var.requires_grad = False
 
-            t_patch: torch.tensor = kornia.warp_perspective((patches+delta).float(), M, dsize=(h, w))
+            t_patch: torch.tensor = kornia.warp_perspective((patches+delta).float(), M, dsize=(300, 300))
 
             adv_images = (torch.clamp(t_patch*t_patch_mask_var+(1-t_patch_mask_var)*(images),min=0, max=255) - mean) / std
 
