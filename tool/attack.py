@@ -3,7 +3,7 @@ Description:
 Autor: Jiachen Sun
 Date: 2021-03-10 13:48:38
 LastEditors: Jiachen Sun
-LastEditTime: 2021-03-10 21:11:34
+LastEditTime: 2021-03-10 21:33:46
 '''
 import numpy as np
 import torch
@@ -72,12 +72,15 @@ def pgd_t(model, image, label, mean, std, target_mask, patch_init, patch_orig, s
         patch_mask_var = patch_mask
     t_patch_mask_var = kornia.warp_perspective(patch_mask_var.float(), M, dsize=(h, w))
 
+    # print(t_patch_mask_var)
+    cv2.imwrite('mask.png', np.int8(t_patch_mask_var.clone().cpu().squeeze(0).cpu().numpy().transpose((1,2,0)*255)))
+
     ori_patches = patch_orig.data
 
     best_adv_patches = [torch.zeros_like(patches),-1e8]
 
     for j in range(restarts):
-        delta = torch.rand_like(patches, requires_grad=True)
+        # delta = torch.rand_like(patches, requires_grad=True)
         delta = torch.zeros_like(patches, requires_grad=True)
         # delta.data = (delta.data * 2 * eps - eps) * perturb_mask
 
