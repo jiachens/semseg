@@ -212,6 +212,7 @@ def scale_process(model, image, label, classes, crop_h, crop_w, h, w, mean, std=
     grid_w = int(np.ceil(float(new_w-crop_w)/stride_w) + 1)
     prediction_crop = np.zeros((new_h, new_w, classes), dtype=float)
     count_crop = np.zeros((new_h, new_w), dtype=float)
+    print(crop_h, crop_w)
     for index_h in range(0, grid_h):
         for index_w in range(0, grid_w):
             print(index_h,index_w)
