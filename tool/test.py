@@ -131,7 +131,7 @@ def net_process(model, image, label, mean, std=None, flip=False):
     # image[:300,:300,:] = p_img
     # cv2.imwrite('./test.png',np.uint8(image))
     patch_img = np.zeros_like(np.expand_dims(image.transpose((2, 0, 1)),0))
-    p_img = p_img/255.
+    p_img = p_img
     p_img = np.moveaxis(p_img,-1,0)
     patch_img[:,:,:300,:300] = p_img
     patch_orig = torch.from_numpy(patch_img).cuda()
@@ -223,8 +223,8 @@ def scale_process(model, image, label, classes, crop_h, crop_w, h, w, mean, std=
             s_w = e_w - crop_w
             image_crop = image[s_h:e_h, s_w:e_w].copy()
             label_crop = label[s_h:e_h, s_w:e_w].copy()
-            print(s_h, e_h, s_w, e_w)
-            print(image.shape)
+            # print(s_h, e_h, s_w, e_w)
+            # print(image.shape)
             count_crop[s_h:e_h, s_w:e_w] += 1
             prediction_crop[s_h:e_h, s_w:e_w, :] += net_process(model, image_crop, label_crop, mean, std)
     prediction_crop /= np.expand_dims(count_crop, 2)
@@ -240,12 +240,12 @@ def test(test_loader, data_list, model, classes, mean, std, base_size, crop_h, c
     model.eval()
     end = time.time()
     for i, (input, label) in enumerate(test_loader):
-        print(input.shape)
+        # print(input.shape)
         data_time.update(time.time() - end)
         input = np.squeeze(input.numpy(), axis=0)
         label = np.squeeze(label.numpy(), axis=0)
         image = np.transpose(input, (1, 2, 0))
-        print(label.shape)
+        # print(label.shape)
         # label = np.transpose(label, (1, 2, 0))
         h, w, _ = image.shape
         
