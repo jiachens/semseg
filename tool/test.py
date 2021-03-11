@@ -168,7 +168,7 @@ def net_process(model, image, label, mean, std=None, flip=False):
                           alpha=1, restarts=1, rap=True,target_label = 2)[0]
     print(adv_image.shape)
 
-    cv2.imwrite('./test.png',np.uint8(adv_image.squeeze(0).numpy().transpose((1,2,0))))
+    cv2.imwrite('./test.png',np.uint8(adv_image.squeeze(0).cpu().numpy().transpose((1,2,0))))
 
 
 
