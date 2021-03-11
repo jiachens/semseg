@@ -138,7 +138,7 @@ def net_process(model, image, label, mean, std=None, flip=False):
     # adv_patch = torch.from_numpy(patch_img).cuda()
 
     init_tf_pts_orig = np.array([
-                    [[928, 574 + 512],[1205, 574 + 512],[1262, 663 + 512],[851, 664 + 512]], # small
+                    [[928, 574],[1205, 574],[1262, 663],[851, 664]], # small
                     # [[970, 507],[1161, 507],[1287, 664],[851, 664]], # large
                     [[0, 0], [300 - 1, 0], [300 - 1, 300 - 1], [0, 300 - 1]],
                 ]).astype(np.int)
