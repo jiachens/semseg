@@ -3,7 +3,7 @@ Description:
 Autor: Jiachen Sun
 Date: 2021-03-10 13:48:38
 LastEditors: Jiachen Sun
-LastEditTime: 2021-03-11 14:49:36
+LastEditTime: 2021-03-11 16:54:00
 '''
 import numpy as np
 import torch
@@ -52,8 +52,8 @@ def pgd_t(model, image, label, mean, std, target_mask, patch_init, patch_orig, s
     std = torch.FloatTensor(std).cuda().unsqueeze(0)
     std = std[..., None, None]
 
-    # loss = nn.CrossEntropyLoss()
-    loss = nn.NLLLoss2d(ignore_index=255)
+    loss = nn.CrossEntropyLoss(ignore_index=255)
+    #loss = nn.NLLLoss2d(ignore_index=255)
 
     tv_loss = TVLoss()
 
