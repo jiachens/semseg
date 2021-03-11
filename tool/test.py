@@ -156,9 +156,9 @@ def net_process(model, image, label, mean, std=None, flip=False):
     # image = image.transpose((2, 0, 1))
     target_mask[int(h/2-200):int(h/2+200),int(w/2-200):int(w/2+200)] = 1
     target_mask = (np.any([label == id for id in target_labels]) & (target_mask == 1)).astype(np.int8) 
-    print(target_mask[int(h/2-200):int(h/2+200),int(w/2-200):int(w/2+200)])
+    # print(target_mask[int(h/2-200):int(h/2+200),int(w/2-200):int(w/2+200)])
     loss_mask = target_mask.copy()
-    print(np.max(image))
+    # print(np.max(image))
     input = torch.from_numpy(image.transpose((2, 0, 1))).float()
     label = torch.from_numpy(label).unsqueeze(0)
 

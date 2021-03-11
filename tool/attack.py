@@ -3,7 +3,7 @@ Description:
 Autor: Jiachen Sun
 Date: 2021-03-10 13:48:38
 LastEditors: Jiachen Sun
-LastEditTime: 2021-03-10 20:10:50
+LastEditTime: 2021-03-10 20:12:21
 '''
 import numpy as np
 import torch
@@ -110,7 +110,7 @@ def pgd_t(model, image, label, mean, std, target_mask, patch_init, patch_orig, s
                     cost = alpha * obj_loss_value + (1-alpha) * tv_loss_value
                 else:
                     # untargeted attack
-                    obj_loss_value = loss(outputs*target_mask, u_labels*target_mask)
+                    obj_loss_value = loss(outputs.unsqueeze(0)*target_mask, u_labels.long()*target_mask)
                     tv_loss_value = tv_loss(ori_patches + delta)
                     cost = alpha * obj_loss_value + (1-alpha) * tv_loss_value
 
