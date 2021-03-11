@@ -206,6 +206,7 @@ def scale_process(model, image, label, classes, crop_h, crop_w, h, w, mean, std=
         image = cv2.copyMakeBorder(image, pad_h_half, pad_h - pad_h_half, pad_w_half, pad_w - pad_w_half, cv2.BORDER_CONSTANT, value=mean)
         label = cv2.copyMakeBorder(label, pad_h_half, pad_h - pad_h_half, pad_w_half, pad_w - pad_w_half, cv2.BORDER_CONSTANT, value=mean)
     new_h, new_w, _ = image.shape
+    print(new_h,new_w)
     stride_h = int(np.ceil(crop_h*stride_rate))
     stride_w = int(np.ceil(crop_w*stride_rate))
     grid_h = int(np.ceil(float(new_h-crop_h)/stride_h) + 1)
