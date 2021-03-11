@@ -125,11 +125,6 @@ def net_process(model, image, label, mean, std=None, flip=False):
     patch = cv2.imread('./cropped_patch.jpg', cv2.IMREAD_COLOR)  # BGR 3 channel ndarray wiht shape H * W * 3
     patch = cv2.cvtColor(patch, cv2.COLOR_BGR2RGB)
     p_img = cv2.resize(patch, (300, 300), interpolation=cv2.INTER_LINEAR)
-    # p_img = np.moveaxis(p_img,-1,0)
-    # print(image.shape)
-    # image = image.transpose((2, 0, 1))
-    # image[:300,:300,:] = p_img
-    # cv2.imwrite('./test.png',np.uint8(image))
     patch_img = np.zeros_like(np.expand_dims(image.transpose((2, 0, 1)),0))
     p_img = np.moveaxis(p_img,-1,0)
     patch_img[:,:,:300,:300] = p_img
