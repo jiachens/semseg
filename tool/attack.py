@@ -3,7 +3,7 @@ Description:
 Autor: Jiachen Sun
 Date: 2021-03-10 13:48:38
 LastEditors: Jiachen Sun
-LastEditTime: 2021-03-10 20:01:35
+LastEditTime: 2021-03-10 20:05:38
 '''
 import numpy as np
 import torch
@@ -53,7 +53,7 @@ def pgd_t(model, image, label, mean, std, target_mask, patch_init, patch_orig, s
     std = std[..., None, None]
 
     # loss = nn.CrossEntropyLoss()
-    loss = nn.CrossEntropyLoss(ignore_index=255)
+    loss = nn.NLLLoss2d(ignore_index=255)
 
     tv_loss = TVLoss()
 
@@ -104,6 +104,7 @@ def pgd_t(model, image, label, mean, std, target_mask, patch_init, patch_orig, s
             if rap:
                 if target_label != None:
                     # target attack
+                    print(outputs.shape,labels.shape)
                     obj_loss_value = - loss(outputs*target_mask, labels*target_label*target_mask)
                     tv_loss_value = tv_loss(ori_patches + delta)
                     cost = alpha * obj_loss_value + (1-alpha) * tv_loss_value
