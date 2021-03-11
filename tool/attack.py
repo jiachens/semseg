@@ -3,7 +3,7 @@ Description:
 Autor: Jiachen Sun
 Date: 2021-03-10 13:48:38
 LastEditors: Jiachen Sun
-LastEditTime: 2021-03-10 20:12:21
+LastEditTime: 2021-03-10 20:54:04
 '''
 import numpy as np
 import torch
@@ -91,7 +91,7 @@ def pgd_t(model, image, label, mean, std, target_mask, patch_init, patch_orig, s
 
             t_patch: torch.tensor = kornia.warp_perspective((patches+delta).float(), M, dsize=(h, w))
 
-            adv_images = (torch.clamp(t_patch*t_patch_mask_var+(1-t_patch_mask_var)*(images),min=0, max=1) - mean) / std
+            adv_images = (torch.clamp(t_patch*t_patch_mask_var+(1-t_patch_mask_var)*(images),min=0, max=255) - mean) / std
 
             outputs = model(adv_images)[0]
 
@@ -119,13 +119,13 @@ def pgd_t(model, image, label, mean, std, target_mask, patch_init, patch_orig, s
 
             adv_patches = patches + delta + step_size*eps*delta.grad.sign()
             eta = torch.clamp(adv_patches - ori_patches, min=-eps, max=eps)
-            delta = torch.clamp(ori_patches + eta, min=0, max=1).detach_() - ori_patches
+            delta = torch.clamp(ori_patches + eta, min=0, max=255).detach_() - ori_patches
 
             if cost.cpu().data.numpy() > best_adv_patches[1]:
                 best_adv_patches = [delta.data, cost.cpu().data.numpy()]
 
     t_patch: torch.tensor = kornia.warp_perspective((ori_patches+best_adv_patches[0]).float(), M, dsize=(h, w))
 
-    adv_images = (torch.clamp(t_patch*t_patch_mask_var+(1-t_patch_mask_var)*(images*std+mean),min=0, max=1)- mean)/std
+    adv_images = (torch.clamp(t_patch*t_patch_mask_var+(1-t_patch_mask_var)*(images*std+mean),min=0, max=255)- mean)/std
 
     return adv_images, best_adv_patches[0]+ori_patches, t_patch_mask_var.cpu().data.numpy()

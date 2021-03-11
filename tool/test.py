@@ -131,7 +131,6 @@ def net_process(model, image, label, mean, std=None, flip=False):
     # image[:300,:300,:] = p_img
     # cv2.imwrite('./test.png',np.uint8(image))
     patch_img = np.zeros_like(np.expand_dims(image.transpose((2, 0, 1)),0))
-    p_img = p_img
     p_img = np.moveaxis(p_img,-1,0)
     patch_img[:,:,:300,:300] = p_img
     patch_orig = torch.from_numpy(patch_img).cuda()
