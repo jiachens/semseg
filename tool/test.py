@@ -169,14 +169,14 @@ def net_process(model, image, label, mean, std=None, flip=False, image_name=None
     cv2.imwrite('./' + image_name + '_adv.png',np.uint8(adv_image_orig.clone().squeeze(0).cpu().numpy().transpose((1,2,0))))
 
 
-    if std is None:
-        for t, m in zip(input, mean):
-            t.sub_(m)
-    else:
-        for t, m, s in zip(input, mean, std):
-            t.sub_(m).div_(s)
+    # if std is None:
+    #     for t, m in zip(input, mean):
+    #         t.sub_(m)
+    # else:
+    #     for t, m, s in zip(input, mean, std):
+    #         t.sub_(m).div_(s)
     
-    input = input.unsqueeze(0).cuda()
+    # input = input.unsqueeze(0).cuda()
     if flip:
         input = torch.cat([input, input.flip(3)], 0)
     with torch.no_grad():
