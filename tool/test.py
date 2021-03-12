@@ -166,7 +166,7 @@ def net_process(model, image, label, mean, std=None, flip=False, image_name=None
     
     input = adv_image
     print(input.shape)
-    cv2.imwrite('./' + image_name + '_adv.png',np.uint8(adv_image_orig.clone().squeeze(0).cpu().numpy().transpose((1,2,0))))
+    cv2.imwrite('./adv_img/' + image_name + '_adv.png',np.uint8(adv_image_orig.clone().squeeze(0).cpu().numpy().transpose((1,2,0))))
 
 
     # if std is None:
