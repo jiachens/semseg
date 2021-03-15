@@ -295,6 +295,9 @@ def cal_acc(data_list, pred_folder, classes, names):
         image_name = image_path.split('/')[-1].split('.')[0]
         pred = cv2.imread(os.path.join(pred_folder, image_name+'.png'), cv2.IMREAD_GRAYSCALE)
         target = cv2.imread(target_path, cv2.IMREAD_GRAYSCALE)
+        h,w = pred.shape
+        pred = pred[int(h/2-200):int(h/2+200),int(w/2-200):int(w/2+200)]
+        target = target[int(h/2-200):int(h/2+200),int(w/2-200):int(w/2+200)]
         intersection, union, target = intersectionAndUnion(pred, target, classes)
         intersection_meter.update(intersection)
         union_meter.update(union)
