@@ -162,7 +162,7 @@ def net_process(model, image, label, mean, std=None, flip=False, image_name=None
     adv_image, adv_image_orig,_,_ = attack.pgd_t(model,input,label,mean,std,loss_mask,patch_orig, patch_orig, 
                           init_tf_pts=init_tf_pts, 
                           step_size = 0.1, eps=100, iters=100, 
-                          alpha=0.8, restarts=1, rap=True, target_label = 2,patch_mask=patch_mask)
+                          alpha=0.8, restarts=1, rap=True, target_label = 0,patch_mask=patch_mask)
     
     input = adv_image
     print(input.shape)
