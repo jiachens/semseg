@@ -165,8 +165,8 @@ def net_process(model, image, label, mean, std=None, flip=False, image_name=None
     #                       alpha=0.8, restarts=1, rap=True, target_label = 0,patch_mask=patch_mask)
     
     # input = adv_image
-    print(input.shape)
-    cv2.imwrite('./adv_img/' + image_name + '_adv.png',np.uint8(adv_image_orig.clone().squeeze(0).cpu().numpy().transpose((1,2,0))))
+    # print(input.shape)
+    # cv2.imwrite('./adv_img/' + image_name + '_adv.png',np.uint8(adv_image_orig.clone().squeeze(0).cpu().numpy().transpose((1,2,0))))
 
 
     if std is None:
